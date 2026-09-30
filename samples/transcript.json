@@ -1,0 +1,177 @@
+{
+  "provider": "ollama",
+  "chat": [
+    {
+      "request": {
+        "user_id": "user-123",
+        "session_id": "s1",
+        "message": "My name is Rahul. I was born on 15 August 1995 in Delhi. I'm planning to switch jobs next year."
+      },
+      "status": 200,
+      "response": {
+        "response": "You mentioned you were born on August 15, 1995, in Delhi. Based on your birth date, your sun sign is Leo. Leo energy is known for creativity, leadership, and a love for fun and enjoyment. As you plan to switch jobs next year, consider your passion and what truly fulfills you. Leos are natural leaders, so a role that allows you to lead or inspire could be fulfilling. Make sure your new job aligns with your Leo qualities\u2014confidence, creativity, and a zest for life. Good luck with your career transition!",
+        "user_id": "user-123",
+        "session_id": "s1",
+        "context_used": [],
+        "degraded": false,
+        "warnings": []
+      }
+    },
+    {
+      "request": {
+        "user_id": "user-123",
+        "session_id": "s1",
+        "message": "What should I focus on for my career?"
+      },
+      "status": 200,
+      "response": {
+        "response": "Given your Leo sun sign, focus on roles that allow you to express your leadership, creativity, and enthusiasm. Leos thrive in environments where they can lead, inspire, and take center stage. Consider positions that offer opportunities for innovation, public speaking, or creative problem-solving. Additionally, leverage your natural charisma and confidence to build strong relationships and network within your industry. This will not only make your job more enjoyable but also help you stand out and achieve success.",
+        "user_id": "user-123",
+        "session_id": "s1",
+        "context_used": [
+          "user_profile",
+          "career_goal"
+        ],
+        "degraded": false,
+        "warnings": []
+      }
+    },
+    {
+      "request": {
+        "user_id": "user-123",
+        "session_id": "s1",
+        "message": "Why do you say that?"
+      },
+      "status": 200,
+      "response": {
+        "response": "Certainly! Your Leo sun sign indicates that you have a natural leadership presence and a strong sense of creativity and confidence. Leos are known for their ability to inspire and lead, which can be very valuable in a professional setting. By focusing on roles that allow you to express these qualities, you can leverage your strengths effectively. For example, leadership positions, creative projects, or roles that involve public speaking can be particularly fulfilling for a Leo. This approach can help you feel more engaged and satisfied in your career.",
+        "user_id": "user-123",
+        "session_id": "s1",
+        "context_used": [
+          "user_profile"
+        ],
+        "degraded": false,
+        "warnings": []
+      }
+    },
+    {
+      "request": {
+        "user_id": "user-123",
+        "session_id": "s2",
+        "message": "What do you remember about my career goals?"
+      },
+      "status": 200,
+      "response": {
+        "response": "You mentioned that you are planning to switch jobs in the year 2027. As a Leo, you have a natural leadership quality and a love for creativity and innovation, which can be beneficial in your career. Consider looking for roles that allow you to express your creativity and take on new challenges. This transition could be a great opportunity for you to step into a position that aligns more closely with your passions and strengths.",
+        "user_id": "user-123",
+        "session_id": "s2",
+        "context_used": [
+          "user_profile",
+          "career_goal"
+        ],
+        "degraded": false,
+        "warnings": []
+      }
+    },
+    {
+      "request": {
+        "user_id": "user-123",
+        "session_id": "s2",
+        "message": "Actually I decided not to switch jobs, I'm starting a business instead."
+      },
+      "status": 200,
+      "response": {
+        "response": "That\u2019s a fantastic decision! As a Leo, you have a natural charisma and a creative spirit, which can be tremendous assets in starting your own business. Leos are also known for their leadership and drive, making you well-suited to lead and inspire a team. Focus on your vision and passion, and leverage your creative energies to make your business unique and successful. Best of luck with your new venture!",
+        "user_id": "user-123",
+        "session_id": "s2",
+        "context_used": [
+          "user_profile",
+          "career_goal"
+        ],
+        "degraded": false,
+        "warnings": []
+      }
+    },
+    {
+      "request": {
+        "user_id": "user-123",
+        "session_id": "s3",
+        "message": "What should I focus on for my career now?"
+      },
+      "status": 200,
+      "response": {
+        "response": "You mentioned deciding to start a business in 2027, Rahul. As a Leo, you have a natural leadership and creative streak that can be very beneficial in your business ventures. In the lead-up to this, focus on honing your entrepreneurial skills, building a strong network, and developing your business acumen.\n\nLeos are naturally passionate and confident, which can drive your success. However, also pay attention to details and seek out practical, structured advice to balance your visionary approach. This will help you lay a solid foundation for your business in 2027.",
+        "user_id": "user-123",
+        "session_id": "s3",
+        "context_used": [
+          "user_profile",
+          "career_goal"
+        ],
+        "degraded": false,
+        "warnings": []
+      }
+    },
+    {
+      "request": {
+        "user_id": "user-123",
+        "session_id": "s3",
+        "message": "Will I find love and marriage soon?"
+      },
+      "status": 200,
+      "response": {
+        "response": "As a Leo, you have a charismatic and passionate nature that can attract love. You mentioned your interest in a long-term relationship, which is very much in line with your sun sign's qualities.\n\nFrom an astrological perspective, your love life might be influenced by the positions of Venus and Mars in your birth chart. However, without the exact time of birth, it's challenging to provide specific timing. \n\nIn the meantime, focus on building genuine connections and being open to meeting new people. Engaging in activities that align with your interests and passions can also increase your chances of meeting the right person. Patience and positivity will likely lead to finding the love you desire.",
+        "user_id": "user-123",
+        "session_id": "s3",
+        "context_used": [
+          "user_profile"
+        ],
+        "degraded": false,
+        "warnings": []
+      }
+    }
+  ],
+  "memories_after": {
+    "user_id": "user-123",
+    "memories": [
+      {
+        "updated_at": "2026-09-30T08:33:43.577314+00:00",
+        "importance": 0.8,
+        "kind": "goal",
+        "confidence": 0.85,
+        "target_year": 2027,
+        "created_at": "2026-09-30T08:33:04.299042+00:00",
+        "text": "User is planning to switch jobs",
+        "raw_phrase": "next year",
+        "id": "m-00fc7bc80a56",
+        "value": "career change",
+        "key": "goal:career_change",
+        "status": "superseded",
+        "life_area": "career"
+      },
+      {
+        "updated_at": "2026-09-30T08:33:43.309501+00:00",
+        "importance": 0.8,
+        "kind": "goal",
+        "confidence": 0.85,
+        "target_year": 2027,
+        "created_at": "2026-09-30T08:33:43.309501+00:00",
+        "text": "User decided to start a business instead of switching jobs.",
+        "raw_phrase": "starting a business",
+        "id": "m-a799fc006da4",
+        "value": "starting a business",
+        "key": "goal:career_change",
+        "status": "active",
+        "life_area": "career"
+      }
+    ]
+  },
+  "profile_after": {
+    "user_id": "user-123",
+    "name": "Rahul",
+    "dob": "1995-08-15",
+    "tob": null,
+    "birth_place": "Delhi",
+    "language": null,
+    "sun_sign": "Leo"
+  }
+}

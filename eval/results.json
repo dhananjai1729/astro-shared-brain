@@ -1,0 +1,135 @@
+{
+  "summary": {
+    "memory_accuracy": {
+      "on": 1.0,
+      "off": 0.17
+    },
+    "context_recall": {
+      "on": 1.0,
+      "off": 0.5
+    },
+    "context_precision": {
+      "on": 1.0,
+      "off": 1.0
+    },
+    "irrelevant_context": {
+      "on": 0.0,
+      "off": 0.0
+    },
+    "personalized": {
+      "on": 1.0,
+      "off": 0.33
+    },
+    "persistence": {
+      "on": 1.0,
+      "off": null
+    }
+  },
+  "cases": {
+    "on": [
+      {
+        "memory_accuracy": true,
+        "context_recall": true,
+        "context_precision": 1.0,
+        "irrelevant_context": false,
+        "personalized": true,
+        "case": "recall_goal_new_session",
+        "persistence": true
+      },
+      {
+        "memory_accuracy": true,
+        "context_recall": true,
+        "context_precision": 1.0,
+        "irrelevant_context": false,
+        "personalized": true,
+        "case": "topical_career_question",
+        "persistence": true
+      },
+      {
+        "memory_accuracy": true,
+        "context_recall": true,
+        "context_precision": 1.0,
+        "irrelevant_context": false,
+        "personalized": true,
+        "case": "irrelevant_memory_excluded",
+        "persistence": true
+      },
+      {
+        "memory_accuracy": true,
+        "context_recall": true,
+        "context_precision": 1.0,
+        "irrelevant_context": false,
+        "personalized": true,
+        "case": "correction_supersedes",
+        "persistence": true
+      },
+      {
+        "memory_accuracy": true,
+        "context_recall": true,
+        "context_precision": 1.0,
+        "irrelevant_context": false,
+        "personalized": true,
+        "case": "profile_personalization",
+        "persistence": true
+      },
+      {
+        "memory_accuracy": true,
+        "context_recall": true,
+        "context_precision": 1.0,
+        "irrelevant_context": false,
+        "personalized": true,
+        "case": "small_talk_not_stored"
+      }
+    ],
+    "off": [
+      {
+        "memory_accuracy": false,
+        "context_recall": false,
+        "context_precision": 1.0,
+        "irrelevant_context": false,
+        "personalized": false,
+        "case": "recall_goal_new_session"
+      },
+      {
+        "memory_accuracy": false,
+        "context_recall": false,
+        "context_precision": 1.0,
+        "irrelevant_context": false,
+        "personalized": false,
+        "case": "topical_career_question"
+      },
+      {
+        "memory_accuracy": false,
+        "context_recall": true,
+        "context_precision": 1.0,
+        "irrelevant_context": false,
+        "personalized": true,
+        "case": "irrelevant_memory_excluded"
+      },
+      {
+        "memory_accuracy": false,
+        "context_recall": false,
+        "context_precision": 1.0,
+        "irrelevant_context": false,
+        "personalized": false,
+        "case": "correction_supersedes"
+      },
+      {
+        "memory_accuracy": false,
+        "context_recall": true,
+        "context_precision": 1.0,
+        "irrelevant_context": false,
+        "personalized": false,
+        "case": "profile_personalization"
+      },
+      {
+        "memory_accuracy": true,
+        "context_recall": true,
+        "context_precision": 1.0,
+        "irrelevant_context": false,
+        "personalized": true,
+        "case": "small_talk_not_stored"
+      }
+    ]
+  }
+}

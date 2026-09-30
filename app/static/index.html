@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shared Brain Tester</title>
+<style>
+  :root {
+    --bg: #f6f5f1; --panel: #ffffff; --ink: #1c1b19; --muted: #6b6860; --line: #e3e0d8;
+    --accent: #5b3fd1; --accent-ink: #ffffff; --user: #ece8ff; --bot: #f1efe9;
+    --ok: #1d7a4d; --warn: #b26a00; --bad: #b3261e; --chip: #efeadf;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #121110; --panel: #1b1a18; --ink: #ecebe6; --muted: #9a968b; --line: #2e2c28;
+      --accent: #9b87f5; --accent-ink: #14121f; --user: #2a2448; --bot: #24221f;
+      --ok: #5fcf95; --warn: #e0a24a; --bad: #f2776e; --chip: #2a2723;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 system-ui, -apple-system, Segoe UI, sans-serif; }
+  header { display: flex; align-items: center; gap: 12px; padding: 12px 20px; border-bottom: 1px solid var(--line); background: var(--panel); flex-wrap: wrap; }
+  header h1 { font-size: 16px; margin: 0; letter-spacing: .2px; }
+  header .spacer { flex: 1; }
+  .pill { font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--chip); color: var(--muted); }
+  .pill.ok { color: var(--ok); } .pill.bad { color: var(--bad); }
+  main { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; padding: 16px 20px; max-width: 1400px; margin: 0 auto; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; padding: 12px 16px; } }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+  section h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); margin: 0 0 10px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 2px; }
+  input, select, textarea { width: 100%; padding: 7px 9px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; }
+  input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  button { font: inherit; cursor: pointer; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); padding: 7px 12px; }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+  button:disabled { opacity: .5; cursor: default; }
+  button:hover:not(:disabled) { filter: brightness(.96); }
+  .row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
+  .row > div { flex: 1; min-width: 120px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  #log { height: 52vh; min-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 4px 2px 8px; }
+  .msg { max-width: 88%; padding: 9px 12px; border-radius: 12px; white-space: pre-wrap; word-wrap: break-word; }
+  .msg.user { align-self: flex-end; background: var(--user); border-bottom-right-radius: 3px; }
+  .msg.bot { align-self: flex-start; background: var(--bot); border-bottom-left-radius: 3px; }
+  .msg.sys { align-self: center; color: var(--muted); font-size: 12px; background: none; padding: 2px; }
+  .meta { margin-top: 6px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .chip { font-size: 11px; padding: 1px 8px; border-radius: 999px; background: var(--chip); color: var(--muted); border: 1px solid var(--line); }
+  .chip.ctx { color: var(--accent); border-color: var(--accent); }
+  .chip.warn { color: var(--warn); border-color: var(--warn); }
+  .chip.none { font-style: italic; }
+  .compose { display: flex; gap: 8px; margin-top: 8px; }
+  .compose textarea { resize: none; height: 44px; }
+  .hints { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .hints button { font-size: 12px; padding: 3px 9px; color: var(--muted); }
+  .mem { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; margin-bottom: 8px; background: var(--bg); }
+  .mem.superseded { opacity: .55; }
+  .mem.superseded .t { text-decoration: line-through; }
+  .mem .t { font-weight: 500; }
+  .mem .m { color: var(--muted); font-size: 12px; margin-top: 3px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .mem.fresh { animation: flash 2.2s ease-out; }
+  @keyframes flash { from { background: color-mix(in srgb, var(--accent) 25%, var(--bg)); } to { background: var(--bg); } }
+  dl.profile { display: grid; grid-template-columns: 110px 1fr; gap: 3px 10px; margin: 0; }
+  dl.profile dt { color: var(--muted); } dl.profile dd { margin: 0; }
+  dl.profile dd.unk { color: var(--muted); font-style: italic; }
+  .spin { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--line); border-top-color: var(--accent); animation: sp .8s linear infinite; display: none; }
+  .busy .spin { display: inline-block; } @keyframes sp { to { transform: rotate(360deg); } }
+  .empty { color: var(--muted); font-style: italic; padding: 6px 2px; }
+  .stack { display: flex; flex-direction: column; gap: 16px; }
+  .toggle { font-size: 12px; color: var(--muted); display: flex; gap: 6px; align-items: center; margin-left: auto; text-transform: none; letter-spacing: 0; font-weight: 400; }
+  .toggle input { width: auto; }
+  .err { color: var(--bad); font-size: 12px; margin-top: 6px; min-height: 16px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>✦ Shared Brain tester</h1>
+  <span id="health" class="pill">checking…</span>
+  <span id="llm" class="pill"></span>
+  <span class="spacer"></span>
+  <div style="width:170px"><label for="uid">user_id</label><input id="uid" value="user-123"></div>
+  <div style="width:150px"><label for="sid">session_id</label><input id="sid" value="session-1"></div>
+  <button id="newSession" title="Same user, fresh short-term context">New session</button>
+  <button id="newUser" title="Brand-new user id (empty brain)">New user</button>
+</header>
+
+<main>
+  <div class="stack">
+    <section>
+      <h2>Chat</h2>
+      <div id="log"></div>
+      <div class="compose">
+        <textarea id="msg" placeholder="Say something… (Enter to send, Shift+Enter for newline)"></textarea>
+        <button id="send" class="primary">Send</button>
+      </div>
+      <div class="hints" id="hints"></div>
+      <div class="err" id="err"></div>
+    </section>
+  </div>
+
+  <div class="stack">
+    <section id="memSec">
+      <h2>Long-term memory <span class="spin"></span>
+        <label class="toggle"><input type="checkbox" id="showOld" checked> show superseded</label></h2>
+      <div id="mems"></div>
+    </section>
+
+    <section>
+      <h2>Profile (from graph)</h2>
+      <dl class="profile" id="profile"></dl>
+      <details style="margin-top:12px">
+        <summary style="cursor:pointer;color:var(--muted)">Edit profile (PUT /users/{id}/profile)</summary>
+        <div class="grid2" style="margin-top:8px">
+          <div><label>name</label><input id="p_name"></div>
+          <div><label>preferred language</label><input id="p_language" placeholder="Hindi"></div>
+          <div><label>date of birth</label><input id="p_dob" type="date"></div>
+          <div><label>time of birth</label><input id="p_tob" type="time"></div>
+          <div><label>birth place</label><input id="p_birth_place"></div>
+          <div><label>UTC offset (hours, default 5.5)</label><input id="p_utc_offset" type="number" step="0.5" min="-12" max="14" placeholder="5.5"></div>
+        </div>
+        <div class="row" style="margin-top:8px"><button id="saveProfile">Save profile</button><span class="err" id="perr"></span></div>
+      </details>
+    </section>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const uid = () => $('uid').value.trim(), sid = () => $('sid').value.trim();
+let known = new Set(), polling = 0, pollTimer = null;
+
+const HINTS = [
+  "My name is Rahul. I was born on 15 August 1995 in Delhi. I'm planning to switch jobs next year.",
+  "What should I focus on for my career?",
+  "Why do you say that?",
+  "What do you remember about my career goals?",
+  "Actually I decided not to switch jobs, I'm starting a business instead.",
+  "Will I find love and marriage soon?",
+  "Actually I was born in Mumbai, not Delhi.",
+  "Please reply in Hindi from now on",
+  "I'm preparing for a product management interview next month.",
+  "thanks",
+];
+HINTS.forEach(h => { const b = document.createElement('button'); b.textContent = h.length > 38 ? h.slice(0, 36) + '…' : h; b.title = h;
+  b.onclick = () => { $('msg').value = h; $('msg').focus(); }; $('hints').appendChild(b); });
+
+function bubble(cls, text) { const d = document.createElement('div'); d.className = 'msg ' + cls; d.textContent = text; $('log').appendChild(d); $('log').scrollTop = 1e9; return d; }
+function chips(el, r) {
+  const m = document.createElement('div'); m.className = 'meta';
+  const add = (t, c) => { const s = document.createElement('span'); s.className = 'chip ' + (c || ''); s.textContent = t; m.appendChild(s); };
+  add('context used:', '');
+  if (r.context_used.length) r.context_used.forEach(c => add(c, 'ctx')); else add('none', 'none');
+  if (r.degraded) add('degraded', 'warn');
+  (r.warnings || []).forEach(w => add(w, 'warn'));
+  el.appendChild(m);
+}
+
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  let body = null; try { body = await r.json(); } catch (e) {}
+  if (!r.ok) throw new Error((body && (body.detail ? JSON.stringify(body.detail) : body.error)) || r.statusText);
+  return body;
+}
+
+async function send() {
+  const message = $('msg').value.trim(); if (!message) return;
+  $('err').textContent = ''; $('msg').value = ''; $('send').disabled = true;
+  bubble('user', message);
+  const wait = bubble('bot', '…');
+  try {
+    const r = await api('/chat', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ user_id: uid(), session_id: sid(), message }) });
+    wait.textContent = r.response; chips(wait, r);
+    startPolling();
+  } catch (e) { wait.remove(); $('err').textContent = 'Request failed: ' + e.message; }
+  $('send').disabled = false; $('msg').focus();
+}
+
+async function refreshMemories(markFresh) {
+  try {
+    const d = await api(`/users/${encodeURIComponent(uid())}/memories?include_inactive=true`);
+    const box = $('mems'); box.innerHTML = '';
+    const show = $('showOld').checked;
+    const list = d.memories.filter(m => show || m.status === 'active').sort((a, b) => (b.created_at > a.created_at ? 1 : -1));
+    if (!list.length) box.innerHTML = '<div class="empty">Nothing stored yet. Tell the assistant something durable about you.</div>';
+    let changed = false;
+    list.forEach(m => {
+      const sig = m.id + m.status + m.updated_at; if (!known.has(sig)) changed = true;
+      const el = document.createElement('div');
+      el.className = 'mem ' + m.status + (markFresh && !known.has(sig) ? ' fresh' : '');
+      const t = document.createElement('div'); t.className = 't'; t.textContent = m.text;
+      const meta = document.createElement('div'); meta.className = 'm';
+      [['key', m.key], ['area', m.life_area], ['status', m.status], ['conf', (+m.confidence).toFixed(2)], ['imp', (+m.importance).toFixed(2)],
+       m.target_year ? ['year', m.target_year] : null, m.raw_phrase ? ['phrase', '“' + m.raw_phrase + '”'] : null,
+       m.expires_at ? ['expires', m.expires_at.slice(0, 10)] : null].filter(Boolean).forEach(([k, v]) => {
+        const s = document.createElement('span'); s.className = 'chip'; s.textContent = k + ': ' + v; meta.appendChild(s); });
+      el.append(t, meta); box.appendChild(el);
+    });
+    d.memories.forEach(m => known.add(m.id + m.status + m.updated_at));
+    return changed;
+  } catch (e) { $('mems').innerHTML = '<div class="empty">Could not load memories: ' + e.message + '</div>'; return false; }
+}
+
+async function refreshProfile() {
+  const dl = $('profile'); dl.innerHTML = '';
+  let p = null;
+  try { p = await api(`/users/${encodeURIComponent(uid())}/profile`); } catch (e) { /* 404 for unknown user */ }
+  const rows = [['name', 'name'], ['date of birth', 'dob'], ['time of birth', 'tob'], ['birth place', 'birth_place'], ['language', 'language'], ['sun sign', 'sun_sign'], ['moon sign (tropical)', 'moon_sign'], ['moon sign (sidereal)', 'moon_sign_sidereal']];
+  rows.forEach(([label, k]) => {
+    const dt = document.createElement('dt'); dt.textContent = label;
+    const dd = document.createElement('dd'); const v = p && p[k]; dd.textContent = v || 'unknown'; if (!v) dd.className = 'unk';
+    dl.append(dt, dd);
+  });
+  if (p && p.moon_note) { const n = document.createElement('dd'); n.style.gridColumn = '2'; n.style.fontSize = '12px'; n.style.color = 'var(--muted)';
+    n.textContent = 'tropical: ' + p.moon_note + (p.moon_note_sidereal && p.moon_note_sidereal !== p.moon_note ? ' | sidereal: ' + p.moon_note_sidereal : '') + ' · UTC' + (p.utc_offset == null ? '+5:30 (default)' : (p.utc_offset >= 0 ? '+' : '') + p.utc_offset); dl.append(document.createElement('dt'), n); }
+  if (p) { ['name', 'language', 'dob', 'tob', 'birth_place', 'utc_offset'].forEach(k => { if (document.activeElement !== $('p_' + k)) $('p_' + k).value = p[k] == null ? '' : p[k]; }); }
+}
+
+// memory extraction runs in the background after the reply: poll for a while
+function startPolling() {
+  polling = 0; clearInterval(pollTimer); $('memSec').classList.add('busy');
+  pollTimer = setInterval(async () => {
+    polling++; await refreshMemories(true); await refreshProfile();
+    if (polling >= 25) { clearInterval(pollTimer); $('memSec').classList.remove('busy'); }
+  }, 2500);
+  setTimeout(() => refreshMemories(true), 600);
+}
+
+async function saveProfile() {
+  $('perr').textContent = '';
+  const body = {}; ['name', 'language', 'dob', 'tob', 'birth_place', 'utc_offset'].forEach(k => { const v = $('p_' + k).value.trim(); if (v) body[k] = k === 'utc_offset' ? parseFloat(v) : v; });
+  try { await api(`/users/${encodeURIComponent(uid())}/profile`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+    await refreshProfile(); $('perr').textContent = 'saved'; $('perr').style.color = 'var(--ok)';
+  } catch (e) { $('perr').textContent = e.message; $('perr').style.color = 'var(--bad)'; }
+}
+
+async function health() {
+  try { const h = await api('/health'); const el = $('health');
+    el.textContent = 'graph ' + h.graph + (h.outbox_pending ? ` · outbox ${h.outbox_pending}` : ''); el.className = 'pill ' + (h.graph === 'up' ? 'ok' : 'bad');
+    $('llm').textContent = 'LLM: ' + (h.llm.length ? h.llm.join(' → ') : 'none configured!'); $('llm').className = 'pill ' + (h.llm.length ? '' : 'bad');
+  } catch (e) { $('health').textContent = 'api down'; $('health').className = 'pill bad'; }
+}
+
+function resetView(msg) { $('log').innerHTML = ''; known = new Set(); clearInterval(pollTimer); $('memSec').classList.remove('busy');
+  bubble('sys', msg); refreshMemories(false); refreshProfile(); }
+
+$('send').onclick = send;
+$('msg').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
+$('saveProfile').onclick = saveProfile;
+$('showOld').onchange = () => refreshMemories(false);
+$('newSession').onclick = () => { $('sid').value = 'session-' + Math.random().toString(36).slice(2, 7); resetView('New session: short-term context is empty, long-term memory persists.'); };
+$('newUser').onclick = () => { $('uid').value = 'user-' + Math.random().toString(36).slice(2, 7); $('sid').value = 'session-1'; resetView('New user: empty brain.'); };
+$('uid').onchange = () => resetView('Switched to user ' + uid());
+$('sid').onchange = () => { $('log').innerHTML = ''; bubble('sys', 'Switched to session ' + sid() + ' (chat history of a session is server-side and not replayed here).'); };
+
+health(); setInterval(health, 10000);
+resetView('Ready. Try the suggestion chips below, in order, to walk through the assignment scenarios.');
+</script>
+</body>
+</html>
