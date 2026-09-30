@@ -7,6 +7,40 @@ A FastAPI service where an LLM answers astrology questions using **short-term se
 POST /chat → validate → load profile → select context → LLM → respond → [background] update memory
 ```
 
+## For reviewers
+
+**Fastest way to evaluate (≈5 min, no API key needed)**
+1. `docker compose up -d neo4j` then `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt`
+2. `.venv/bin/python -m pytest tests -q` — 75 tests incl. the 8 scenarios from the brief against a real graph
+   (`test_1_…` to `test_8_…` in `tests/test_scenarios.py`; they use a deterministic mock LLM).
+3. `.venv/bin/python -m eval.run_eval` — Shared Brain ON vs OFF (memory accuracy 1.00 vs 0.17, personalization 1.00 vs 0.33).
+4. Read [`samples/transcript.json`](samples/transcript.json) — a recorded multi-session conversation with a real local model.
+
+**To chat with a real model:** add `ANTHROPIC_API_KEY` to `.env` (copy `.env.example`), *or* run Ollama
+(`ollama pull qwen2.5:7b-instruct`); the default chain is `anthropic,ollama`. Then
+`.venv/bin/uvicorn app.main:app` and open **http://localhost:8000/** — a test UI with the chat, the graph
+memories (incl. superseded history), the profile, and the `context_used` for every reply.
+
+**Where each requirement of the brief lives**
+
+| Brief item | Implementation | Verified by |
+|---|---|---|
+| 1. Chat API | `POST /chat` in `app/main.py`, orchestration in `app/chat/service.py` | `tests/test_scenarios.py` |
+| 2. User profile (+ stubbed astrology) | `PUT /users/{id}/profile`, `app/profile/astro.py` (sun sign, tropical + sidereal moon sign) | `test_units.py`, `test_failures.py` |
+| 3. Shared Brain (Neo4j, schema) | `app/brain/store.py`; schema under "Shared Brain schema" below | scenarios 2, 3, 5, 7 |
+| 4. Short-term vs long-term memory | `app/session/store.py` (SQLite) vs `app/memory/updater.py` (graph) | scenarios 4, 5; small talk not stored |
+| 5. Context selection | `app/chat/context.py`, `app/memory/classifier.py`, `ranking.py` | scenarios 3, 6; `context_used` in every response |
+| 6. LLM layer (modular) | `app/llm/` — Anthropic, Ollama, Mock + fallback chain | provider/fallback tests |
+| 7. Memory update (what / not / represent / update) | `app/memory/updater.py`, `rules.py`, `brain/store.py` (`SUPERSEDES`) | scenario 7, expiry, retract tests |
+| 8. Testing & evaluation | `tests/` (8 scenarios + units + failures), `eval/run_eval.py` | `pytest`, eval script |
+| 9. Error handling | degraded mode, outbox, fallbacks — see "Error handling" | `tests/test_failures.py` |
+| Bonus done | importance/confidence scores, conflict resolution, decay/expiry, model fallback, token budget, Hindi/multilingual prompt, plus moon signs and an optional Laya classifier | see sections below |
+| Bonus not done | conversation summarization, advanced graph traversal | — |
+
+**Honest status.** Verified for real: the graph, all API flows, the tests, the eval, the Docker image, and real
+extraction + chat with a local Ollama model. **Not run against the real Anthropic API** (no key was available
+while building); that provider is covered by stub tests only — see "Verified vs not" at the end.
+
 ## Quick start
 
 ```bash
@@ -33,6 +67,7 @@ Claude first and falls back to the local model.
 | `PUT /users/{id}/profile` | upsert name / dob / tob / birth_place / language / utc_offset; **sun sign** (from dob) and **moon sign** — tropical and sidereal/Vedic — (from dob + tob + utc_offset) are computed |
 | `GET /users/{id}/profile`, `GET /users/{id}/memories?include_inactive=` | inspect the brain |
 | `GET /health` | graph status + pending outbox writes |
+| `GET /` | test UI: chat, graph memories, profile, `context_used` |
 
 Sample requests/responses: [`samples/requests.md`](samples/requests.md) (curl) and
 [`samples/transcript.json`](samples/transcript.json) (a recorded multi-session conversation).
