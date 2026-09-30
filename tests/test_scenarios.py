@@ -122,3 +122,13 @@ def test_extractor_is_shown_existing_memory_keys_so_it_reuses_them(client, uid, 
     extraction = [c for c in mock.calls if c["role"] == "extract"][-1]["system"]
     assert "goal:career_change: career change" in extraction  # existing key is offered for reuse
     assert memories(client, uid) == []  # and the retract targeted that key -> nothing active remains
+
+
+def test_demo_mode_is_a_fully_working_app_with_a_clear_warning(live_brain, make_client, uid):
+    from app.llm.chain import FallbackChain
+    from app.llm.demo_provider import DemoProvider
+    c = make_client(brain=live_brain, llm=FallbackChain([DemoProvider()]))
+    chat(c, uid, "s1", FIRST)
+    r = chat(c, uid, "s2", "What should I focus on for my career?")
+    assert "career_goal" in r["context_used"] and "career change" in r["response"] and not r["degraded"]
+    assert any("demo mode" in w for w in r["warnings"]) and r["response"].startswith("[demo mode")

@@ -111,3 +111,53 @@ def test_anthropic_thinking_only_response_is_a_clear_error():
     p.client.messages = Msgs()
     with pytest.raises(LLMError, match="max_tokens"):
         p.generate("s", [])
+
+
+def test_demo_provider_composes_reply_from_context_and_labels_itself():
+    from app.chat.prompts import build_system_prompt
+    from app.llm.demo_provider import LABEL, DemoProvider
+    from app.models import Profile
+    p = Profile(user_id="u", name="Rahul", sun_sign="Leo", moon_sign="Aries")
+    out = DemoProvider().generate(build_system_prompt(p, ["User is planning a career change"]),
+                                  [{"role": "user", "content": "What should I focus on for my career?"}])
+    assert out.startswith(LABEL) and "Rahul" in out and "Leo sun" in out and "career change" in out
+    empty = DemoProvider().generate(build_system_prompt(p, []), [{"role": "user", "content": "What do you remember about me?"}])
+    assert "don't have anything stored" in empty  # never claims a memory it doesn't have
+
+
+def test_demo_provider_extraction_is_real_rule_extraction():
+    import json
+    from app.chat.prompts import build_extraction_system
+    from datetime import date
+    from app.llm.demo_provider import DemoProvider
+    raw = DemoProvider().generate(build_extraction_system(date.today()), [{"role": "user", "content": "I'm planning to switch jobs next year."}], role="extract")
+    assert [m["key"] for m in json.loads(raw)["memories"]] == ["goal:career_change"]
+
+
+def test_chain_thread_local_last_used_and_default_chain_ends_in_demo():
+    import threading
+    from app.config import Settings
+    from app.llm.base import LLMProvider
+    from app.llm.chain import FallbackChain
+    from app.llm.demo_provider import DemoProvider
+    from app.llm.factory import build_llm
+
+    class Down(LLMProvider):
+        name = "down"
+        def generate(self, *a, **k): raise LLMError("x")
+    chain = FallbackChain([Down(), DemoProvider()])
+    chain.generate("s", [{"role": "user", "content": "hi"}])
+    seen = {}
+    t = threading.Thread(target=lambda: seen.update(other=chain.last_used)); t.start(); t.join()
+    assert chain.last_used == "demo" and seen["other"] is None
+    s = Settings(_env_file=None)
+    assert [p.name for p in build_llm(s).providers][-1] == "demo"  # default chain always has a working tail
+
+
+def test_demo_provider_uses_correct_article_before_vowel_signs():
+    from app.chat.prompts import build_system_prompt
+    from app.llm.demo_provider import DemoProvider
+    from app.models import Profile
+    out = DemoProvider().generate(build_system_prompt(Profile(user_id="u", sun_sign="Leo", moon_sign="Aries"), []),
+                                  [{"role": "user", "content": "hi there"}])
+    assert "a Leo sun and an Aries moon" in out

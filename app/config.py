@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    llm_provider: str = "anthropic,ollama"  # comma list = fallback chain
+    llm_provider: str = "anthropic,ollama,demo"  # comma list = fallback chain
     anthropic_api_key: str = ""
     anthropic_chat_model: str = "claude-opus-5-5"
     anthropic_extract_model: str = "claude-haiku-4-5"

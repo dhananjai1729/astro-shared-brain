@@ -51,6 +51,9 @@ class ChatService:
             reply, degraded = FALLBACK_REPLY, True
             warnings.append("llm unavailable")
 
+        if getattr(self.llm, "last_used", None) == "demo" and not degraded:
+            warnings.append("demo mode: no real LLM available (set ANTHROPIC_API_KEY or run Ollama)")
+
         self.sessions.add_turn(req.user_id, req.session_id, "user", req.message)
         self.sessions.add_turn(req.user_id, req.session_id, "assistant", reply)
         resp = ChatResponse(response=reply, user_id=req.user_id, session_id=req.session_id,

@@ -9,17 +9,24 @@ POST /chat → validate → load profile → select context → LLM → respond 
 
 ## For reviewers
 
-**Fastest way to evaluate (≈5 min, no API key needed)**
-1. `docker compose up -d neo4j` then `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt`
-2. `.venv/bin/python -m pytest tests -q` — 75 tests incl. the 8 scenarios from the brief against a real graph
-   (`test_1_…` to `test_8_…` in `tests/test_scenarios.py`; they use a deterministic mock LLM).
-3. `.venv/bin/python -m eval.run_eval` — Shared Brain ON vs OFF (memory accuracy 1.00 vs 0.17, personalization 1.00 vs 0.33).
-4. Read [`samples/transcript.json`](samples/transcript.json) — a recorded multi-session conversation with a real local model.
+**Run the working app (one command, no API key, no setup)** — needs only Docker:
+```bash
+docker compose up --build        # Neo4j + API
+# then open http://localhost:8000/   (chat UI + live view of the graph memories)
+```
+With no key and no Ollama the app runs in a clearly labelled **demo mode**: the graph, memory extraction
+(rule-based), retrieval, corrections and profile/moon-sign logic are all real; only the reply text is composed
+from the retrieved context instead of written by an LLM (each reply is prefixed `[demo mode…]` and carries a
+warning). For real answers add `ANTHROPIC_API_KEY` to `.env` (copy `.env.example`) and/or run Ollama
+(`ollama pull qwen2.5:7b-instruct`); the default chain is `anthropic → ollama → demo`, so a real model is
+always preferred when available. Suggested script in the UI: use the suggestion chips in order.
 
-**To chat with a real model:** add `ANTHROPIC_API_KEY` to `.env` (copy `.env.example`), *or* run Ollama
-(`ollama pull qwen2.5:7b-instruct`); the default chain is `anthropic,ollama`. Then
-`.venv/bin/uvicorn app.main:app` and open **http://localhost:8000/** — a test UI with the chat, the graph
-memories (incl. superseded history), the profile, and the `context_used` for every reply.
+**Verify the engineering (≈2 min)**
+1. `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt` (Neo4j from step above is running)
+2. `.venv/bin/python -m pytest tests -q` — 80 tests incl. the 8 scenarios from the brief against a real graph
+   (`test_1_…` to `test_8_…` in `tests/test_scenarios.py`; deterministic mock LLM).
+3. `.venv/bin/python -m eval.run_eval` — Shared Brain ON vs OFF (memory accuracy 1.00 vs 0.17, personalization 1.00 vs 0.33).
+4. [`samples/transcript.json`](samples/transcript.json) — a recorded multi-session conversation with a real local model.
 
 **Where each requirement of the brief lives**
 
@@ -54,10 +61,10 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 
 Or everything in containers: `docker compose up --build` (the API reaches host Ollama at `host.docker.internal`).
 
-**LLM selection** — `LLM_PROVIDER` is a comma list forming a fallback chain:
+**LLM selection** — `LLM_PROVIDER` is a comma list forming a fallback chain (default `anthropic,ollama,demo`):
 `anthropic` (default models: `claude-opus-5-5` chat, `claude-haiku-4-5` extraction), `ollama`
-(`qwen2.5:7b-instruct`), `mock` (deterministic, used by tests). `LLM_PROVIDER=anthropic,ollama` tries
-Claude first and falls back to the local model.
+(`qwen2.5:7b-instruct`), `demo` (no-LLM fallback, see above), `mock` (deterministic, used by tests). Providers are tried in order;
+remove `demo` to require a real model.
 
 ### API
 

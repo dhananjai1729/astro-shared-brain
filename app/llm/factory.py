@@ -4,6 +4,7 @@ from app.config import Settings
 from app.llm.anthropic_provider import AnthropicProvider
 from app.llm.base import LLMError, LLMProvider
 from app.llm.chain import FallbackChain
+from app.llm.demo_provider import DemoProvider
 from app.llm.mock_provider import MockProvider
 from app.llm.ollama_provider import OllamaProvider
 
@@ -20,6 +21,8 @@ def build_llm(s: Settings) -> LLMProvider:
                     s.anthropic_chat_effort, s.anthropic_api_url))
             elif name == "ollama":
                 providers.append(OllamaProvider(s.ollama_base_url, s.ollama_model, s.llm_timeout * 2))
+            elif name == "demo":
+                providers.append(DemoProvider())
             elif name == "mock":
                 providers.append(MockProvider())
             else:
